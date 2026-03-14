@@ -15,13 +15,12 @@ export const Navbar: React.FC = () => {
         <div className="flex justify-between items-center h-20">
           
           {/* Logo */}
-          <Link to="/" className="flex-shrink-0 flex flex-col items-center group">
-             <span className="font-serif text-2xl md:text-3xl font-bold tracking-wider text-emani-blue group-hover:opacity-80 transition-opacity">
-               ЭМАНИ
-             </span>
-             <span className="text-[0.6rem] md:text-xs tracking-[0.2em] text-emani-dark uppercase">
-               Кондитерская
-             </span>
+          <Link to="/" className="flex-shrink-0 group">
+             <img
+               src="/logo.png"
+               alt="Эмани — Кондитерская & Кулинария"
+               className="h-14 md:h-16 w-auto object-contain group-hover:opacity-80 transition-opacity"
+             />
           </Link>
 
           {/* Desktop Nav */}

@@ -29,6 +29,59 @@
       ::-webkit-scrollbar-thumb:hover {
         background: #5a4b26;
       }
+      @keyframes fadeUp {
+        0% {
+          opacity: 0;
+          transform: translateY(18px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes softFloat {
+        0%,
+        100% {
+          transform: translate3d(0, 0, 0);
+        }
+        50% {
+          transform: translate3d(0, -8px, 0);
+        }
+      }
+      @keyframes gentleGlow {
+        0%,
+        100% {
+          opacity: 0.3;
+        }
+        50% {
+          opacity: 0.55;
+        }
+      }
+      .reveal-up {
+        animation: fadeUp 0.8s ease-out both;
+      }
+      .reveal-delay-1 {
+        animation-delay: 0.1s;
+      }
+      .reveal-delay-2 {
+        animation-delay: 0.2s;
+      }
+      .soft-float {
+        animation: softFloat 10s ease-in-out infinite;
+      }
+      .gentle-glow {
+        animation: gentleGlow 8s ease-in-out infinite;
+      }
+      .hover-lift {
+        transition: transform 0.45s ease, box-shadow 0.45s ease, border-color 0.45s ease;
+      }
+      .hover-lift:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 24px 48px rgba(32, 31, 22, 0.08);
+      }
+      .ambient-orb {
+        pointer-events: none;
+      }
     </style>
     <script>
       tailwind.config = {
