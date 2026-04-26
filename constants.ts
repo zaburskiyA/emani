@@ -1,200 +1,125 @@
-import { Category, Product } from './types';
+import { Product } from './types';
+import PRICE_LIST_RAW from './price.txt?raw';
 
-export const MOCK_PRODUCTS: Product[] = [
-  // --- CONFECTIONERY (Торты, пирожные, рулеты) ---
-  {
-    id: '1',
-    name: 'Медовик Классический',
-    description: 'Традиционные медовые коржи с нежным сметанным кремом. Наш фирменный рецепт с 2016 года.',
-    price: 2500,
-    image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    category: Category.CONFECTIONERY,
-    tags: ['classic', 'bestseller'],
-    isPopular: true,
-  },
-  {
-    id: '2',
-    name: 'Наполеон с Ягодами',
-    description: 'Множество тончайших слоеных коржей с заварным кремом и прослойкой из свежей малины.',
-    price: 2800,
-    image: 'https://images.unsplash.com/photo-1626264039818-6878c7731726?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    category: Category.CONFECTIONERY,
-    tags: ['classic', 'fruit'],
-    isPopular: true,
-  },
-  {
-    id: '3',
-    name: 'Меренговый Рулет',
-    description: 'Невесомая меренга с хрустящей корочкой, нежным кремом и свежей малиной. Тает во рту.',
-    price: 1900,
-    image: 'https://images.unsplash.com/photo-1629895056930-c3d6c07df747?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    category: Category.CONFECTIONERY,
-    tags: ['gluten-free', 'bestseller'],
-    isPopular: true,
-  },
-  {
-    id: '4',
-    name: 'Чизкейк Сан-Себастьян',
-    description: 'Баскский обожженный чизкейк с карамелизованной корочкой и кремовой серединкой.',
-    price: 3200,
-    image: 'https://images.unsplash.com/photo-1662580757753-3f8c5b9676c8?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    category: Category.CONFECTIONERY,
-    tags: ['trend', 'cheese'],
-  },
-  {
-    id: '5',
-    name: 'Торт "Тирамису"',
-    description: 'Итальянская классика в авторском исполнении. Савоярди, маскарпоне и эспрессо.',
-    price: 2900,
-    image: 'https://images.unsplash.com/photo-1571875257727-256c39da42af?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    category: Category.CONFECTIONERY,
-    tags: ['coffee', 'classic'],
-  },
-  {
-    id: '6',
-    name: 'Шоколадный Трюфель',
-    description: 'Насыщенный шоколадный бисквит с ганашом из бельгийского шоколада.',
-    price: 3200,
-    image: 'https://images.unsplash.com/photo-1571115177098-24ec42ed204d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    category: Category.CONFECTIONERY,
-    tags: ['chocolate'],
-  },
-  {
-    id: '7',
-    name: 'Пирожное "Шу" с Клубникой',
-    description: 'Воздушное заварное тесто кракелин, ванильный крем и свежая клубника.',
-    price: 350,
-    image: 'https://images.unsplash.com/photo-1612203985729-70726954388c?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    category: Category.CONFECTIONERY,
-    tags: ['french'],
-  },
+const FALLBACK_IMAGE = `data:image/svg+xml;utf8,${encodeURIComponent(
+  `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#f7f3eb"/>
+        <stop offset="100%" stop-color="#efe6d7"/>
+      </linearGradient>
+    </defs>
+    <rect width="1200" height="800" fill="url(#bg)"/>
+    <rect x="60" y="60" width="1080" height="680" rx="32" fill="none" stroke="#d9c8ae" stroke-width="6"/>
+    <text x="600" y="390" text-anchor="middle" font-family="Georgia, serif" font-size="54" fill="#9a835f">Emani</text>
+    <text x="600" y="455" text-anchor="middle" font-family="Arial, sans-serif" font-size="34" fill="#a18f72">Image unavailable</text>
+  </svg>`,
+)}`;
 
-  // --- BAKERY (Пироги, булочки, слойки, пирожки) ---
-  {
-    id: '10',
-    name: 'Песочный Пирог с Вишней',
-    description: 'Рассыпчатое песочное тесто с щедрой начинкой из кисло-сладкой вишни.',
-    price: 1200,
-    image: 'https://images.unsplash.com/photo-1562007908-17c6742e3f8c?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    category: Category.BAKERY,
-    tags: ['fruit', 'tea'],
-  },
-  {
-    id: '11',
-    name: 'Слойка с Орехом',
-    description: 'Золотистое слоеное тесто с начинкой из грецкого ореха и карамели.',
-    price: 180,
-    image: 'https://images.unsplash.com/photo-1600093463592-8e36ae95ef56?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    category: Category.BAKERY,
-    tags: ['nuts'],
-  },
-  {
-    id: '12',
-    name: 'Кольцо с Арахисом',
-    description: 'Песочное кольцо, щедро обсыпанное жареным арахисом. Вкус детства.',
-    price: 150,
-    image: 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    category: Category.BAKERY,
-    tags: ['nuts', 'classic'],
-  },
-  {
-    id: '13',
-    name: 'Пирожок с Капустой',
-    description: 'Пышный печеный пирожок с сочной начинкой из молодой капусты и яйца.',
-    price: 90,
-    image: 'https://images.unsplash.com/photo-1621255767292-19e4811a243c?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    category: Category.BAKERY,
-    tags: ['snack', 'savory'],
-  },
+const ITEM_LINE_REGEX = /^(.*?)\s*-\s*(.*?)\s*-\s*(\d+)\s*$/;
+const FILE_EXTENSION_REGEX = /\.[^.]+$/;
+const POPULAR_PRODUCT_NAMES = new Set(['Фисташковый рулет', 'Сан-Себастьян']);
+const POPULAR_PRODUCT_PREFIXES = ['Курзе'];
+const IMAGE_POSITION_BY_BASENAME = new Map<string, string>([
+  ['pie1', 'center 65%'],
+  ['pie2', 'center 65%'],
+  ['pie3', 'center 65%'],
+]);
 
-  // --- EASTERN SWEETS (Пахлава, пальчики, печенья) ---
-  {
-    id: '20',
-    name: 'Пахлава Медовая',
-    description: '40 слоев тончайшего теста фило, грецкий орех и натуральный мед.',
-    price: 1500,
-    image: 'https://images.unsplash.com/photo-1519340333755-56e9c1d04579?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    category: Category.EASTERN_SWEETS,
-    tags: ['nuts', 'honey', 'bestseller'],
-    isPopular: true,
-  },
-  {
-    id: '21',
-    name: 'Орешки со Сгущенкой',
-    description: 'Классическое песочное печенье в форме ореха с вареной сгущенкой.',
-    price: 650,
-    image: 'https://images.unsplash.com/photo-1630403756763-8a355694c7b8?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    category: Category.EASTERN_SWEETS,
-    tags: ['classic', 'kids'],
-  },
-  {
-    id: '22',
-    name: 'Фисташковое Печенье',
-    description: 'Мягкое печенье с трещинками (Crinkle) на основе фисташковой муки.',
-    price: 800,
-    image: 'https://images.unsplash.com/photo-1599599810769-bcde5a823097?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    category: Category.EASTERN_SWEETS,
-    tags: ['nuts', 'green'],
-  },
+const isPopularProduct = (name: string): boolean => {
+  if (POPULAR_PRODUCT_NAMES.has(name)) {
+    return true;
+  }
 
-  // --- CULINARY (Первые и вторые блюда, салаты, гарниры) ---
-  {
-    id: '30',
-    name: 'Салат Цезарь с Курицей',
-    description: 'Салат айсберг, черри, пармезан, гренки, филе цыпленка и фирменный соус.',
-    price: 450,
-    image: 'https://images.unsplash.com/photo-1550304943-4f24f54ddde9?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    category: Category.CULINARY,
-    tags: ['salad', 'lunch'],
-  },
-  {
-    id: '31',
-    name: 'Борщ с Говядиной',
-    description: 'Наваристый домашний борщ. Подается со сметаной.',
-    price: 390,
-    image: 'https://images.unsplash.com/photo-1573333514797-815460950339?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    category: Category.CULINARY,
-    tags: ['soup', 'hot'],
-  },
-  {
-    id: '32',
-    name: 'Котлеты По-киевски',
-    description: 'Куриная котлета с маслом и зеленью в панировке. С картофельным пюре.',
-    price: 520,
-    image: 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    category: Category.CULINARY,
-    tags: ['main', 'dinner'],
-  },
+  return POPULAR_PRODUCT_PREFIXES.some((prefix) => name.startsWith(prefix));
+};
 
-  // --- SEMI-FINISHED (Пельмени, котлеты, голубцы, вареники) ---
-  {
-    id: '40',
-    name: 'Пельмени "Домашние"',
-    description: 'Ручная лепка. Свинина-говядина. Тонкое тесто. Заморозка.',
-    price: 850,
-    image: 'https://images.unsplash.com/photo-1519624021569-45bcc71d533b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    category: Category.SEMI_FINISHED,
-    tags: ['frozen', 'meat'],
-  },
-  {
-    id: '41',
-    name: 'Вареники с Вишней',
-    description: 'Сладкие вареники с цельной ягодой. Заморозка.',
-    price: 700,
-    image: 'https://images.unsplash.com/photo-1628205240224-b52c002166cb?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    category: Category.SEMI_FINISHED,
-    tags: ['frozen', 'sweet'],
-  },
-  {
-    id: '42',
-    name: 'Голубцы Мясные',
-    description: 'Капуста, рис, фарш. Готовы к тушению. Упаковка 1 кг.',
-    price: 650,
-    image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-    category: Category.SEMI_FINISHED,
-    tags: ['frozen', 'dinner'],
-  },
-];
+const photoModules = (import.meta as any).glob('./media/photos/*.{png,jpg,jpeg,webp}', {
+  eager: true,
+  import: 'default',
+}) as Record<string, string>;
+
+const photoByFilename = new Map<string, string>();
+const photoByBasename = new Map<string, string>();
+
+for (const [modulePath, imageUrl] of Object.entries(photoModules)) {
+  const filename = modulePath.split('/').pop()?.toLowerCase();
+  if (!filename) {
+    continue;
+  }
+  photoByFilename.set(filename, imageUrl);
+
+  const basename = filename.replace(FILE_EXTENSION_REGEX, '');
+  if (!photoByBasename.has(basename)) {
+    photoByBasename.set(basename, imageUrl);
+  }
+}
+
+const resolvePhotoUrl = (rawFilename: string): string => {
+  const normalizedFilename = rawFilename.trim().toLowerCase();
+  const exactMatch = photoByFilename.get(normalizedFilename);
+  if (exactMatch) {
+    return exactMatch;
+  }
+
+  const basename = normalizedFilename.replace(FILE_EXTENSION_REGEX, '');
+  const basenameMatch = photoByBasename.get(basename);
+  if (basenameMatch) {
+    return basenameMatch;
+  }
+
+  return FALLBACK_IMAGE;
+};
+
+const parseProductsFromPriceList = (rawPriceList: string): Product[] => {
+  const lines = rawPriceList.split(/\r?\n/);
+  const products: Product[] = [];
+  let currentSection = 'Меню';
+  let itemCounter = 0;
+
+  for (const rawLine of lines) {
+    const line = rawLine.trim();
+    if (!line) {
+      continue;
+    }
+
+    if (!line.includes(' - ') && line.endsWith(':')) {
+      currentSection = line.slice(0, -1).trim() || currentSection;
+      continue;
+    }
+
+    const itemMatch = line.match(ITEM_LINE_REGEX);
+    if (!itemMatch) {
+      continue;
+    }
+
+    const [, photoFilename, name, priceValue] = itemMatch;
+    const price = Number(priceValue);
+    const cleanName = name.trim();
+    const photoBasename = photoFilename.trim().toLowerCase().replace(FILE_EXTENSION_REGEX, '');
+
+    if (!cleanName || Number.isNaN(price)) {
+      continue;
+    }
+
+    itemCounter += 1;
+    products.push({
+      id: `menu-${itemCounter}`,
+      name: cleanName,
+      description: '',
+      price,
+      image: resolvePhotoUrl(photoFilename),
+      imagePosition: IMAGE_POSITION_BY_BASENAME.get(photoBasename),
+      category: currentSection,
+      tags: [],
+      isPopular: isPopularProduct(cleanName),
+    });
+  }
+
+  return products;
+};
+
+export const MOCK_PRODUCTS: Product[] = parseProductsFromPriceList(PRICE_LIST_RAW);
 
 export const NAV_LINKS = [
   { name: 'Главная', path: '/' },

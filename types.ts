@@ -14,7 +14,8 @@ export interface Product {
   description: string;
   price: number;
   image: string;
-  category: Category;
+  imagePosition?: string;
+  category: Category | string;
   tags: string[]; // e.g., 'vegan', 'gluten-free'
   isPopular?: boolean;
 }

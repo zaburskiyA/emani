@@ -1,31 +1,185 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { HashRouter, Routes, Route, Link } from 'react-router-dom';
+import React, { useState, useEffect, useLayoutEffect, useContext } from 'react';
+import { BrowserRouter, Routes, Route, Link, useSearchParams } from 'react-router-dom';
+import { motion, useReducedMotion } from 'motion/react';
+import frontRestImage from './media/front_rest.webp';
+import confectioneryImage from './media/conditery.webp';
+import culinaryImage from './media/culinary.webp';
+import tablesImage from './media/tables.webp';
+import backlavaImage from './media/backlava.webp';
+import frozenImage from './media/frozen.webp';
+import tableHeroImage from './media/table3.webp';
+import bakeryImage from './media/bakeryyy.webp';
+import vkusvillLogo from './vkusvill.svg';
+import dobrinynskyLogo from './media/dobrinynsky.webp';
+import retailDessertLoungeImage from './media/sab_seb_pos.webp';
+import retailPavlovaImage from './media/table_2.webp';
+import retailPastryImage from './media/table_photo.webp';
+import deliveryLogo from './media/delivery-icon-logo.svg';
+import yandexEdaLogo from './media/yandex-eda-sign-logo.svg';
+import contactPhoto1 from './фото 1.webp';
+import contactPhoto2 from './фото 2.webp';
+import contactPhoto4 from './фото 4.webp';
+import contactPhoto5 from './фото 5.webp';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { CartItem, Product, Category } from './types';
 import { CartContext } from './context';
 import { MOCK_PRODUCTS } from './constants';
-import { Phone, Mail, MapPin, Truck, Award, Factory, Coffee, Star, ArrowRight, X, Check, Instagram } from 'lucide-react';
+import {
+  Phone,
+  Mail,
+  MapPin,
+  Truck,
+  Factory,
+  Coffee,
+  ArrowRight,
+  ArrowUpRight,
+  X,
+  Check,
+  MessageCircle,
+  CakeSlice,
+  CookingPot,
+  Croissant,
+  Candy,
+  Package,
+  type LucideIcon,
+} from 'lucide-react';
 
 // --- Page Components ---
 
+type HomeFeature = {
+  title: string;
+  description: React.ReactNode;
+  icon: LucideIcon;
+};
+
+const HOME_FEATURES: HomeFeature[] = [
+  {
+    title: 'Производство',
+    description: (
+      <>
+        Наше производство находится в Новой Москве, в&nbsp;ЖК&nbsp;«Дубровка».
+        <br />
+        Площадь&nbsp;— 500&nbsp;м², все процессы выстроены в&nbsp;соответствии со&nbsp;стандартами HACCP.
+      </>
+    ),
+    icon: Factory,
+  },
+  {
+    title: 'Кафе',
+    description: (
+      <>
+        Уютное кафе при производстве с&nbsp;полным ассортиментом свежих десертов и&nbsp;блюд.
+        <br />
+        Дегустация новинок и&nbsp;кофе&nbsp;— идеально для встреч или перекуса.
+      </>
+    ),
+    icon: Coffee,
+  },
+  {
+    title: 'Доставка',
+    description: (
+      <>
+        Бесплатная доставка в&nbsp;ЖК&nbsp;«Дубровка», в&nbsp;другие районы города&nbsp;— через Яндекс.Еда.
+        <br />
+        Для удобства доступен самовывоз из&nbsp;кафе.
+      </>
+    ),
+    icon: Truck,
+  },
+];
+
+type AssortmentCard = {
+  title: string;
+  subtitle: string;
+  aboutLine: string;
+  menuSection: string;
+  img: string;
+  icon: LucideIcon;
+};
+
+const ASSORTMENT_CARDS: AssortmentCard[] = [
+  {
+    title: 'Кондитерские изделия',
+    subtitle: 'Торты, пирожные, рулеты и\u00A0т.\u00A0д.',
+    aboutLine: 'Кондитерские изделия — торты, пирожные, рулеты',
+    menuSection: 'Кондитерские изделия',
+    img: confectioneryImage,
+    icon: CakeSlice,
+  },
+  {
+    title: 'Кулинария',
+    subtitle: 'Первые и\u00A0вторые блюда, салаты, гарниры и\u00A0т.\u00A0д.',
+    aboutLine: 'Кулинария — первые и вторые блюда, салаты, гарниры',
+    menuSection: 'Кулинария',
+    img: culinaryImage,
+    icon: CookingPot,
+  },
+  {
+    title: 'Выпечка',
+    subtitle: 'Пироги, булочки, слойки и\u00A0пирожки',
+    aboutLine: 'Выпечка — пироги, булочки, слойки, пирожки',
+    menuSection: 'Выпечка',
+    img: bakeryImage,
+    icon: Croissant,
+  },
+  {
+    title: 'Восточные сладости',
+    subtitle: 'Пахлава, пальчики, печенья и\u00A0т.\u00A0д.',
+    aboutLine: 'Восточные сладости — пахлава, пальчики, печенья',
+    menuSection: 'Восточные сладости',
+    img: backlavaImage,
+    icon: Candy,
+  },
+  {
+    title: 'Полуфабрикаты',
+    subtitle: 'Пельмени, котлеты, голубцы, вареники и\u00A0т.\u00A0д.',
+    aboutLine: 'Полуфабрикаты — пельмени, котлеты, голубцы, вареники',
+    menuSection: 'Полуфабрикаты',
+    img: frozenImage,
+    icon: Package,
+  },
+];
+
+const MENU_SECTION_CATEGORY_MAP: Record<string, string[]> = {
+  'Кондитерские изделия': ['Кондитерские изделия'],
+  Кулинария: ['Блюда', 'Салаты', 'Суши и роллы'],
+  Выпечка: ['Кондитерские изделия'],
+  'Восточные сладости': ['Кондитерские изделия'],
+  Полуфабрикаты: ['Полуфабрикаты'],
+};
+
 const Home = () => {
+  const shouldReduceMotion = useReducedMotion();
+  const featureCardInitial = shouldReduceMotion
+    ? { opacity: 0 }
+    : { opacity: 0, y: 22, scale: 0.985 };
+  const featureCardInView = shouldReduceMotion
+    ? { opacity: 1 }
+    : { opacity: 1, y: 0, scale: 1 };
+  const featureCardTransition = shouldReduceMotion
+    ? { duration: 0.25, ease: 'easeOut' as const }
+    : { duration: 0.82, ease: [0.22, 1, 0.36, 1] as const };
+
   return (
     <div className="min-h-screen bg-[#fcfaf7]">
       {/* Hero Section */}
-      <section className="relative h-[90vh] flex items-center justify-center bg-[url('/table3.jpg')] bg-cover bg-center md:bg-fixed">
+      <section
+        className="relative min-h-[70vh] sm:min-h-[76vh] md:h-[90vh] flex items-center justify-center bg-cover bg-center md:bg-fixed"
+        style={{ backgroundImage: `url(${tableHeroImage})` }}
+      >
         <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"></div>
-        <div className="relative text-center text-white px-4 max-w-4xl mx-auto animate-[fadeIn_1s_ease-out]">
-          <h1 className="text-5xl md:text-8xl font-bold mb-6 tracking-wide font-serif leading-tight">
+        <div className="relative text-center text-white px-4 py-16 max-w-4xl mx-auto animate-[fadeIn_1s_ease-out]">
+          <h1 className="text-4xl sm:text-5xl md:text-8xl font-bold mb-6 tracking-wide font-serif leading-tight">
             ЭМАНИ
           </h1>
-          <p className="text-xl md:text-2xl mb-10 font-light tracking-widest text-gray-200 uppercase">
+          <p className="text-base sm:text-lg md:text-2xl mb-8 sm:mb-10 font-light tracking-[0.12em] sm:tracking-[0.2em] md:tracking-widest text-gray-200 uppercase">
             Кондитерская & Кулинария
           </p>
           <div className="flex flex-col md:flex-row gap-6 justify-center">
             <Link 
               to="/menu" 
-              className="px-10 py-4 bg-emani-gold text-white text-lg font-medium hover:bg-white hover:text-emani-gold transition-all duration-300 uppercase tracking-widest"
+              className="inline-flex min-h-[44px] items-center justify-center px-8 sm:px-10 py-3.5 sm:py-4 bg-emani-gold text-white text-base sm:text-lg font-medium hover:bg-white hover:text-emani-gold transition-all duration-300 uppercase tracking-[0.14em] sm:tracking-widest"
             >
               Смотреть меню
             </Link>
@@ -34,30 +188,29 @@ const Home = () => {
       </section>
 
       {/* Features / Why Us */}
-      <section className="py-28 md:py-32">
+      <section className="py-16 sm:py-20 md:py-28">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-16 text-center">
-            <div className="p-8">
-              <div className="w-24 h-24 mx-auto mb-8 bg-white border border-emani-cream rounded-full flex items-center justify-center text-emani-gold">
-                <Factory size={44} />
-              </div>
-              <h3 className="text-2xl md:text-3xl font-serif font-bold mb-5 text-emani-dark">Производство</h3>
-              <p className="text-gray-600 leading-relaxed text-base md:text-lg">Наше производство находится в Новой Москве, в&nbsp;ЖК&nbsp;«Дубровка».<br />Площадь&nbsp;— 500&nbsp;м², все процессы выстроены в&nbsp;соответствии со&nbsp;стандартами HACCP.</p>
-            </div>
-            <div className="p-8">
-              <div className="w-24 h-24 mx-auto mb-8 bg-white border border-emani-cream rounded-full flex items-center justify-center text-emani-gold">
-                <Coffee size={44} />
-              </div>
-              <h3 className="text-2xl md:text-3xl font-serif font-bold mb-5 text-emani-dark">Кафе</h3>
-              <p className="text-gray-600 leading-relaxed text-base md:text-lg">Уютное кафе при производстве с&nbsp;полным ассортиментом свежих десертов и&nbsp;блюд.<br />Дегустация новинок и&nbsp;кофе&nbsp;— идеально для встреч или перекуса.</p>
-            </div>
-            <div className="p-8">
-              <div className="w-24 h-24 mx-auto mb-8 bg-white border border-emani-cream rounded-full flex items-center justify-center text-emani-gold">
-                <Truck size={44} />
-              </div>
-              <h3 className="text-2xl md:text-3xl font-serif font-bold mb-5 text-emani-dark">Доставка</h3>
-              <p className="text-gray-600 leading-relaxed text-base md:text-lg">Бесплатная доставка в&nbsp;ЖК&nbsp;«Дубровка», в&nbsp;другие районы города&nbsp;— через Яндекс.Еда.<br />Для удобства доступен самовывоз из&nbsp;кафе.</p>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-16 text-center">
+            {HOME_FEATURES.map(({ title, description, icon: Icon }, index) => (
+              <motion.div
+                key={title}
+                className="p-6 sm:p-8"
+                initial={featureCardInitial}
+                whileInView={featureCardInView}
+                viewport={{ once: true, amount: 0.32 }}
+                transition={{
+                  ...featureCardTransition,
+                  delay: index * (shouldReduceMotion ? 0.04 : 0.09),
+                }}
+                style={{ willChange: shouldReduceMotion ? 'opacity' : 'transform, opacity' }}
+              >
+                <div className="w-24 h-24 mx-auto mb-8 bg-white border border-emani-cream rounded-full flex items-center justify-center text-emani-gold">
+                  <Icon size={44} />
+                </div>
+                <h3 className="text-2xl sm:text-3xl font-serif font-bold mb-5 text-emani-dark">{title}</h3>
+                <p className="text-gray-600 leading-relaxed text-base md:text-lg">{description}</p>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
@@ -65,28 +218,40 @@ const Home = () => {
       {/* Categories Grid */}
       <section className="py-16 md:py-20 bg-white border-y border-emani-cream/30">
         <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-4xl md:text-5xl font-serif text-center mb-16 text-emani-dark">Ассортимент</h2>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif text-center mb-12 md:mb-16 text-emani-dark">Ассортимент</h2>
           <div className="grid grid-cols-1 md:grid-cols-6 gap-6">
-            {[
-              { title: 'Кондитерские изделия', subtitle: 'Торты, пирожные, рулеты и\u00A0т.\u00A0д.', link: '/menu', img: 'https://images.unsplash.com/photo-1535141192574-5d4897c12636?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80' },
-              { title: 'Кулинария', subtitle: 'Первые и\u00A0вторые блюда, салаты, гарниры и\u00A0т.\u00A0д.', link: '/menu', img: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80' },
-              { title: 'Выпечка', subtitle: 'Пироги, булочки, слойки и\u00A0пирожки', link: '/menu', img: 'https://images.unsplash.com/photo-1509365465985-25d11c17e812?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80' },
-              { title: 'Восточные сладости', subtitle: 'Пахлава, пальчики, печенья и\u00A0т.\u00A0д.', link: '/menu', img: '/backlava.png' },
-              { title: 'Полуфабрикаты', subtitle: 'Пельмени, котлеты, голубцы, вареники и\u00A0т.\u00A0д.', link: '/menu', img: '/frozen.png' },
-            ].map((item, idx) => (
-              <Link
-                to={item.link}
-                key={idx}
-                className={`group relative overflow-hidden rounded-xl shadow-md block ${
-                  idx < 3 ? 'md:col-span-2 h-[26rem]' : 'md:col-span-3 h-[22rem]'
+            {ASSORTMENT_CARDS.map((item, idx) => (
+                <Link
+                  to={`/menu?section=${encodeURIComponent(item.menuSection)}`}
+                  key={idx}
+                  className={`group relative overflow-hidden rounded-xl shadow-md block ${
+                    idx < 3
+                    ? 'md:col-span-2 aspect-[4/3] sm:aspect-[16/10] md:h-[26rem] md:aspect-auto'
+                    : 'md:col-span-3 aspect-[4/3] sm:aspect-[16/10] md:h-[22rem] md:aspect-auto'
                 }`}
               >
                 <div className="absolute inset-0 bg-black/35 group-hover:bg-black/45 transition-colors z-10"></div>
-                <img src={item.img} alt={item.title} className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" />
-                <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-white p-6">
-                  <h3 className="text-2xl md:text-3xl font-serif font-bold mb-2 text-center">{item.title}</h3>
-                  <p className="text-sm md:text-base text-white/80 mb-4 text-center">{item.subtitle}</p>
-                  <span className="text-xs uppercase tracking-widest border-b border-transparent group-hover:border-white transition-all pb-1">
+                {idx === 0 && (
+                  <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                )}
+                <img
+                  src={item.img}
+                  alt={item.title}
+                  loading="lazy"
+                  decoding="async"
+                  sizes="(min-width: 768px) 50vw, 100vw"
+                  className={`w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ${
+                    idx === 0 ? 'object-[center_40%]' : ''
+                  }`}
+                />
+                <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-white p-6 text-center">
+                  <h3 className={`font-serif font-bold mb-2 ${idx === 0 ? 'text-3xl md:text-[2.5rem]' : 'text-2xl md:text-3xl'}`}>
+                    {item.title}
+                  </h3>
+                  <p className={`mb-4 text-white/85 ${idx === 0 ? 'max-w-lg text-sm md:text-lg' : 'text-sm md:text-base'}`}>
+                    {item.subtitle}
+                  </p>
+                  <span className="text-xs uppercase tracking-[0.22em] border-b border-transparent group-hover:border-white transition-all pb-1">
                     Перейти в раздел
                   </span>
                 </div>
@@ -97,9 +262,9 @@ const Home = () => {
       </section>
 
       {/* Popular Products */}
-      <section className="py-28 md:py-32 max-w-7xl mx-auto px-4">
+      <section className="py-16 sm:py-20 md:py-28 max-w-7xl mx-auto px-4">
         <div className="flex justify-between items-end mb-14">
-           <h2 className="text-4xl md:text-5xl font-serif text-emani-dark">Хиты Продаж</h2>
+           <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif text-emani-dark">Хиты Продаж</h2>
            <Link to="/menu" className="hidden md:flex items-center gap-2 text-lg text-emani-gold hover:text-emani-brown transition-colors">
              Смотреть всё меню <ArrowRight size={22} />
            </Link>
@@ -111,38 +276,50 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Newsletter */}
-      <section className="bg-white border-t border-emani-cream py-28 md:py-32 px-4">
-        <div className="max-w-3xl mx-auto text-center">
-          <div className="w-24 h-24 mx-auto mb-10 bg-[#fcfaf7] border border-emani-cream rounded-full flex items-center justify-center text-emani-gold">
-            <Mail size={44} />
-          </div>
-          <h2 className="text-4xl md:text-5xl font-serif mb-5 text-emani-dark">Сладкие новости</h2>
-          <p className="text-gray-500 mb-12 font-light max-w-xl mx-auto leading-relaxed italic text-base md:text-lg">
-            Подпишитесь на нашу рассылку, чтобы первыми узнавать о новинках, сезонных предложениях и мастер-классах.
-          </p>
-          <form className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto">
-            <input 
-              type="email" 
-              placeholder="Ваш Email" 
-              className="flex-1 bg-[#fcfaf7] border border-gray-100 rounded-xl px-6 py-5 text-lg text-emani-dark placeholder-gray-400 focus:outline-none focus:border-emani-gold focus:bg-white transition-all shadow-sm"
-            />
-            <button className="bg-emani-gold text-white px-10 py-5 rounded-xl hover:bg-emani-dark transition-all duration-300 font-bold text-sm uppercase tracking-widest shadow-lg shadow-emani-gold/20">
-              Подписаться
-            </button>
-          </form>
-        </div>
-      </section>
     </div>
   );
 };
 
 const MenuPage = () => {
-  const [filter, setFilter] = useState<string>('Все');
-  const categories = ['Все', ...Object.values(Category).filter(c => c !== Category.SPECIAL)];
-  const filteredProducts = filter === 'Все' 
-    ? MOCK_PRODUCTS 
-    : MOCK_PRODUCTS.filter(p => p.category === filter);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const filterFromQuery = searchParams.get('section')?.trim() || 'Все';
+  const categoryOrder = ['Кондитерские изделия', 'Блюда', 'Салаты', 'Суши и роллы', 'Полуфабрикаты'];
+  const categoryPriority = new Map(categoryOrder.map((category, index) => [category, index]));
+  const sortedProducts = [...MOCK_PRODUCTS].sort((a, b) => {
+    const aPriority = categoryPriority.get(a.category) ?? Number.MAX_SAFE_INTEGER;
+    const bPriority = categoryPriority.get(b.category) ?? Number.MAX_SAFE_INTEGER;
+
+    if (aPriority !== bPriority) {
+      return aPriority - bPriority;
+    }
+
+    return 0;
+  });
+  const allProductCategories = Array.from(
+    new Set(sortedProducts.map((product) => product.category).filter((category) => category !== Category.SPECIAL)),
+  );
+  const coveredMenuCategories = new Set(Object.values(MENU_SECTION_CATEGORY_MAP).flat());
+  const sectionFilters = ASSORTMENT_CARDS.map(({ title }) => title).filter((title) => {
+    const mappedCategories = MENU_SECTION_CATEGORY_MAP[title] ?? [title];
+    return mappedCategories.some((category) => allProductCategories.includes(category));
+  });
+  const extraCategoryFilters = allProductCategories.filter((category) => !coveredMenuCategories.has(category));
+  const categories = [
+    'Все',
+    ...sectionFilters,
+    ...extraCategoryFilters,
+  ];
+  const filter = categories.includes(filterFromQuery) ? filterFromQuery : 'Все';
+  const selectedCategories = filter === 'Все'
+    ? null
+    : (MENU_SECTION_CATEGORY_MAP[filter] ?? [filter]);
+  const filteredProducts = selectedCategories
+    ? sortedProducts.filter((product) => selectedCategories.includes(product.category))
+    : sortedProducts;
+
+  useLayoutEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, [filter]);
 
   return (
     <div className="bg-[#fcfaf7] min-h-screen">
@@ -152,14 +329,14 @@ const MenuPage = () => {
           <p className="text-gray-500 max-w-2xl mx-auto font-light italic">Истинное удовольствие в каждом кусочке</p>
         </div>
 
-        <div className="flex flex-wrap justify-center gap-4 mb-12">
-          {categories.map(cat => (
-            <button
-              key={cat}
-              onClick={() => setFilter(cat)}
-              className={`px-8 py-2.5 rounded-full text-sm font-medium transition-all ${
-                filter === cat 
-                  ? 'bg-emani-dark text-white shadow-lg scale-105' 
+          <div className="flex flex-wrap justify-center gap-4 mb-12">
+            {categories.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setSearchParams(cat === 'Все' ? {} : { section: cat })}
+                className={`inline-flex min-h-[44px] items-center justify-center px-6 sm:px-8 py-2.5 rounded-full text-sm font-medium transition-all ${
+                  filter === cat 
+                    ? 'bg-emani-dark text-white shadow-lg scale-105' 
                   : 'bg-white text-gray-600 border border-gray-200 hover:border-emani-gold hover:text-emani-gold'
               }`}
             >
@@ -177,7 +354,7 @@ const MenuPage = () => {
         ) : (
           <div className="text-center py-20">
             <p className="text-gray-500 text-lg font-serif">В этой категории пока нет товаров.</p>
-            <button onClick={() => setFilter('Все')} className="mt-4 text-emani-blue hover:underline">
+            <button onClick={() => setSearchParams({})} className="mt-4 text-emani-blue hover:underline">
               Показать все товары
             </button>
           </div>
@@ -187,335 +364,398 @@ const MenuPage = () => {
   );
 };
 
-const ABOUT_METRICS = [
+const ABOUT_MEDIA = {
+  hero: frontRestImage,
+  feature: tablesImage,
+} as const;
+
+type AboutDirection = {
+  title: string;
+  line: string;
+  imageBase: string;
+};
+
+const ABOUT_DIRECTIONS: AboutDirection[] = ASSORTMENT_CARDS.map(({ title, subtitle, img }) => ({
+  title,
+  line: subtitle,
+  imageBase: img,
+}));
+
+const ABOUT_PRIMARY_TEXT = '«Эмани» — профессиональное производство премиальной выпечки и кулинарных изделий, работающее с 2016 года.';
+const ABOUT_LOCATION_TITLE = 'Локация и производство:';
+const ABOUT_LOCATION_POINTS = [
+  'Расположение: Новая Москва',
+  'Производственная площадь: 500 м²',
+  'Статус помещения: Полное соответствие стандартам HACCP.',
+];
+const ABOUT_RETAIL_TITLE = 'Розничное присутствие';
+const ABOUT_RETAIL_TEXT = 'На территории производства функционирует собственный магазин с полным ассортиментом продукции.';
+const ABOUT_RETAIL_NOTE = 'Собственная розница помогает быстро тестировать новинки и переносить лучшие решения в федеральные поставки для сетей-партнёров.';
+const ABOUT_RETAIL_GALLERY = [
   {
-    icon: Award,
-    value: 'С 2016',
-    label: 'Работаем как профессиональное производство премиальной выпечки и кулинарии.',
+    src: ABOUT_MEDIA.feature,
+    alt: 'Интерьер фирменного магазина и кафе «Эмани» при производстве.',
+    className: 'about-retail-card-main',
+    sizes: '(min-width: 1280px) 34vw, (min-width: 768px) 40vw, 88vw',
   },
   {
-    icon: Truck,
-    value: 'Стабильно',
-    label: 'Держим вкус, вид на витрине и качество каждой поставки на одном уровне.',
+    src: retailDessertLoungeImage,
+    alt: 'Десерты и кофе в зоне посадки собственного магазина «Эмани».',
+    className: 'about-retail-card-tall',
+    sizes: '(min-width: 1280px) 18vw, (min-width: 768px) 21vw, 46vw',
   },
   {
-    icon: MapPin,
-    value: '500 м²',
-    label: 'Производственная площадка в Новой Москве, в ЖК «Дубровка».',
+    src: retailPavlovaImage,
+    alt: 'Фирменный десерт с ягодами в розничном пространстве «Эмани».',
+    className: 'about-retail-card-square',
+    sizes: '(min-width: 1280px) 16vw, (min-width: 768px) 19vw, 40vw',
   },
   {
-    icon: Check,
-    value: 'HACCP',
-    label: 'Контроль процессов, безопасность и предсказуемый результат в каждой партии.',
+    src: retailPastryImage,
+    alt: 'Подача свежей выпечки в фирменном магазине «Эмани».',
+    className: 'about-retail-card-detail',
+    sizes: '(min-width: 1280px) 15vw, (min-width: 768px) 18vw, 42vw',
+  },
+] as const;
+const ABOUT_PARTNERS_SECTION_LABEL = 'ПАРТНЕРЫ';
+const ABOUT_PARTNERS_SECTION_TITLE = 'Нам доверяют сети, для которых важны качество и стабильность';
+type AboutPartner = {
+  name: string;
+  logo: string;
+  logoAlt: string;
+  summary: string;
+  logoClassName?: string;
+};
+const ABOUT_PARTNERS: AboutPartner[] = [
+  {
+    name: 'ВкусВилл',
+    logo: vkusvillLogo,
+    logoAlt: 'Логотип ВкусВилл',
+    summary: 'Поставляем линейку изделий под требования сети и поддерживаем стабильное качество партий.',
+    logoClassName: 'about-partner-logo-vkusvill',
+  },
+  {
+    name: 'Добрынинский',
+    logo: dobrinynskyLogo,
+    logoAlt: 'Логотип Добрынинский',
+    summary: 'Выпускаем продукцию под бренд партнёра с контролем качества на каждом этапе производства.',
+    logoClassName: 'about-partner-logo-dobrinynsky',
   },
 ];
-
-const ABOUT_STORIES = [
-  {
-    eyebrow: 'Кто мы',
-    title: 'Соединяем кондитерское мастерство и кулинарную технологичность.',
-    description:
-      '«Эмани» — команда, которая работает и с классическими десертами, и с изделиями в восточной традиции, и с удобными полуфабрикатами для дома. Мы собираем ассортимент так, чтобы он был сильным и для розничной витрины, и для регулярных поставок.',
-    points: ['Кондитерские изделия', 'Кулинария', 'Выпечка', 'Восточные сладости', 'Полуфабрикаты'],
-  },
-  {
-    eyebrow: 'Опыт и доверие',
-    title: 'Растём вместе с сильными площадками и требовательными партнёрами.',
-    description:
-      'За плечами «Эмани» — работа на Усачёвском, Добрынинском и Центральном рынках. Сегодня мы — официальные поставщики сетей «ВкусВилл» и «Добрынинский», поэтому к вкусу добавляются дисциплина производства, стандарты и ответственность за каждую партию.',
-    points: ['Усачёвский рынок', 'Добрынинский рынок', 'Центральный рынок', 'Сеть «ВкусВилл»', 'Сеть «Добрынинский»'],
-  },
+const ABOUT_DIRECTIONS_HEADING = 'Производственные направления';
+const ABOUT_STM_TITLE = 'Производство под СТМ';
+const ABOUT_STM_INTRO_TEXT = 'Кондитерская-кулинария «Эмани» обладает необходимыми мощностями и опытом для производства товаров под собственными брендами сетей и партнёров.';
+const ABOUT_STM_EXPERIENCE_TITLE = 'Наш опыт:';
+const ABOUT_STM_EXPERIENCE_POINTS: React.ReactNode[] = [
+  'Успешное сотрудничество с сетями «Добрынинский» и «ВкусВилл»',
+  <>
+    Управляли 10 собственными розничными точками одновременно (
+    <strong className="about-inline-emphasis">Центральный рынок</strong>,{' '}
+    <strong className="about-inline-emphasis">Усаческий рынок</strong> и др.)
+  </>,
 ];
-
-const ABOUT_DIRECTIONS = [
-  {
-    id: '01',
-    title: 'Кондитерские изделия',
-    description: 'Торты, пирожные, рулеты и десерты, созданные для премиальной подачи и стабильного вкуса.',
-  },
-  {
-    id: '02',
-    title: 'Кулинария',
-    description: 'Первые и вторые блюда, салаты и гарниры для ежедневного спроса и уверенной оборачиваемости.',
-  },
-  {
-    id: '03',
-    title: 'Выпечка',
-    description: 'Пироги, булочки, слойки и пирожки — свежая линейка, которая работает и на аромат, и на импульсную покупку.',
-  },
-  {
-    id: '04',
-    title: 'Восточные сладости',
-    description: 'Пахлава, печенье и фирменные позиции в восточной традиции с узнаваемым характером бренда.',
-  },
-  {
-    id: '05',
-    title: 'Полуфабрикаты',
-    description: 'Практичные решения для дома: пельмени, котлеты, голубцы, вареники и другие позиции.',
-  },
+const ABOUT_STM_OFFER_TITLE = 'Что мы можем предложить:';
+const ABOUT_STM_POINTS = [
+  'Разработка рецептур под требования клиента',
+  'Производство под собственную упаковку и брендинг (СТМ)',
+  'Полное соответствие стандартам качества и безопасности',
+  'Гибкость в ассортименте и объёмах',
+  'Быстрая адаптация и оперативная реакция на замечания',
+];
+const ABOUT_STM_ADVANTAGES_TITLE = 'Преимущества работы с нами:';
+const ABOUT_STM_ADVANTAGES_POINTS = [
+  'Контроль качества на каждом этапе',
+  'Стабильные сроки доставки',
+  'Конкурентные цены при высоком качестве',
 ];
 
 const AboutPage = () => (
-  <div className="min-h-screen bg-[#fcfaf7] overflow-hidden">
-    <section className="relative border-b border-emani-cream/30 bg-[#fcfaf7]">
-      <div className="max-w-7xl mx-auto px-4 py-20 md:py-24">
-        <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-10 lg:gap-14 items-center">
-          <div className="reveal-up">
-            <div className="inline-flex items-center gap-2 rounded-full border border-emani-cream bg-white/80 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.28em] text-emani-gold shadow-sm">
-              <Star size={14} />
-              Премиальная кондитерская-кулинария
-            </div>
-            <h1 className="mt-6 max-w-4xl text-4xl md:text-6xl font-serif leading-[1.05] text-emani-dark">
-              «Эмани» создаёт продукты, которые одинаково уверенно работают на вкус, подачу и качество поставок.
-            </h1>
-            <p className="mt-6 max-w-2xl text-lg md:text-xl text-gray-600 leading-relaxed font-light">
-              Кондитерская-кулинария «Эмани» — профессиональное производство премиальной выпечки и кулинарных изделий, которое работает с 2016 года. Мы делаем продукты, которые одинаково хорошо смотрятся на витрине, сохраняют стабильное качество в поставках и радуют вкусом с первого кусочка.
-            </p>
-
-            <div className="mt-10 flex flex-col sm:flex-row gap-4">
-              <Link
-                to="/menu"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-emani-dark px-7 py-4 text-xs font-bold uppercase tracking-[0.24em] text-white transition-all duration-300 hover:bg-emani-gold hover:shadow-xl hover:shadow-emani-gold/15"
-              >
-                Смотреть меню
-                <ArrowRight size={16} />
-              </Link>
-              <Link
-                to="/contact"
-                className="inline-flex items-center justify-center rounded-full border border-emani-cream bg-white/80 px-7 py-4 text-xs font-bold uppercase tracking-[0.24em] text-emani-dark transition-all duration-300 hover:border-emani-gold hover:text-emani-gold"
-              >
-                Связаться с нами
-              </Link>
-            </div>
-
-            <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {ABOUT_METRICS.map(({ icon: Icon, value, label }, idx) => (
-                <div
-                  key={value}
-                  className={`hover-lift reveal-up rounded-3xl border border-emani-cream/50 bg-white/85 p-5 shadow-[0_16px_40px_rgba(32,31,22,0.05)] ${idx % 2 === 1 ? 'reveal-delay-1' : ''}`}
-                >
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#fcfaf7] text-emani-gold border border-emani-cream/40">
-                      <Icon size={20} />
-                    </div>
-                    <div>
-                      <div className="text-lg font-serif text-emani-dark">{value}</div>
-                      <p className="mt-1 text-sm leading-relaxed text-gray-600">{label}</p>
-                    </div>
-                  </div>
-                </div>
+  <div className="about-editorial-page">
+    <section className="about-hero" aria-labelledby="about-hero-title">
+      <div className="about-shell about-hero-grid">
+        <div className="about-hero-content">
+          <h1 id="about-hero-title" className="about-hero-title">{ABOUT_PRIMARY_TEXT}</h1>
+          <article className="about-stm-card about-label-offset about-location-card">
+            <p className="about-label">{ABOUT_LOCATION_TITLE}</p>
+            <div className="about-hero-facts">
+              {ABOUT_LOCATION_POINTS.map((point) => (
+                <p key={point} className="about-body">{point}</p>
               ))}
             </div>
-          </div>
+          </article>
+        </div>
 
-          <div className="reveal-up reveal-delay-2">
-            <div className="soft-float relative overflow-hidden rounded-[32px] border border-emani-cream/60 bg-white p-3 shadow-[0_28px_80px_rgba(32,31,22,0.09)]">
-              <div className="relative overflow-hidden rounded-[24px]">
-                <img
-                  src="https://images.unsplash.com/photo-1517433670267-08bbd4be890f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1400&q=80"
-                  alt="Команда и производство Эмани"
-                  className="h-[540px] w-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-emani-dark/75 via-emani-dark/20 to-transparent"></div>
-                <div className="absolute inset-x-0 bottom-0 p-8 md:p-10 text-white">
-                  <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-emani-lightGold">Новая Москва · ЖК «Дубровка»</p>
-                  <h2 className="mt-3 text-3xl font-serif leading-tight">Производство, витрина и кафе работают как единая экосистема бренда.</h2>
-                  <p className="mt-4 max-w-md text-sm leading-relaxed text-white/85">
-                    Полный ассортимент доступен не только в поставках, но и прямо при производстве: можно попробовать новинки и забрать всё свежее — буквально из первых рук.
-                  </p>
-                </div>
+        <div className="about-hero-media" aria-hidden="true" style={{ backgroundImage: `url(${ABOUT_MEDIA.hero})` }} />
+      </div>
+    </section>
+
+    <section className="about-section about-section-cream" aria-labelledby="about-partners-title">
+      <div className="about-shell pt-3 sm:pt-4 lg:pt-6">
+        <div className="mb-5 sm:mb-7 lg:mb-8 flex justify-center -mt-8 sm:-mt-14 lg:-mt-20">
+          <h2
+            id="about-partners-title"
+            className="about-section-title mx-auto max-w-full text-center leading-none tracking-tight text-[clamp(1.9rem,5.1vw,4.9rem)] whitespace-normal sm:whitespace-nowrap"
+          >
+            {ABOUT_STM_TITLE}
+          </h2>
+        </div>
+
+        <div className="about-partners-layout">
+          <p className="about-stm-intro">{ABOUT_STM_INTRO_TEXT}</p>
+          <div className="about-partners-content">
+            <article className="about-stm-card about-stm-card-offer">
+              <p className="about-label">{ABOUT_STM_OFFER_TITLE}</p>
+              <ul className="about-checklist about-checklist-compact">
+                {ABOUT_STM_POINTS.map((point) => (
+                  <li key={point} className="about-checklist-item">
+                    <Check size={18} strokeWidth={2} />
+                    <span>{point}</span>
+                  </li>
+                ))}
+              </ul>
+            </article>
+
+            <article className="about-stm-card">
+              <p className="about-label">{ABOUT_STM_ADVANTAGES_TITLE}</p>
+              <ul className="about-checklist about-checklist-compact">
+                {ABOUT_STM_ADVANTAGES_POINTS.map((point) => (
+                  <li key={point} className="about-checklist-item">
+                    <Check size={18} strokeWidth={2} />
+                    <span>{point}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="about-stm-second-block">
+                <p className="about-label">{ABOUT_STM_EXPERIENCE_TITLE}</p>
+                <ul className="about-checklist about-checklist-compact">
+                  {ABOUT_STM_EXPERIENCE_POINTS.map((point, index) => (
+                    <li key={`experience-${index}`} className="about-checklist-item">
+                      <Check size={18} strokeWidth={2} />
+                      <span>{point}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-            </div>
+            </article>
           </div>
         </div>
       </div>
     </section>
 
-    <div className="max-w-7xl mx-auto px-4 py-20 md:py-24 space-y-24">
-      <section className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {ABOUT_STORIES.map((item, idx) => (
-          <article
-            key={item.eyebrow}
-            className={`hover-lift reveal-up rounded-[32px] border border-emani-cream/50 bg-white px-7 py-8 md:px-10 md:py-10 shadow-[0_18px_45px_rgba(32,31,22,0.05)] ${idx === 1 ? 'reveal-delay-1' : ''}`}
-          >
-            <span className="text-[11px] font-bold uppercase tracking-[0.28em] text-emani-gold">{item.eyebrow}</span>
-            <h2 className="mt-4 text-3xl font-serif leading-tight text-emani-dark">{item.title}</h2>
-            <p className="mt-5 text-base leading-relaxed text-gray-600">{item.description}</p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              {item.points.map((point) => (
-                <span
-                  key={point}
-                  className="rounded-full border border-emani-cream/70 bg-[#fcfaf7] px-4 py-2 text-xs font-medium tracking-[0.08em] text-emani-dark"
-                >
-                  {point}
-                </span>
-              ))}
-            </div>
-          </article>
-        ))}
-      </section>
-
-      <section className="grid grid-cols-1 lg:grid-cols-[0.95fr_1.05fr] gap-10 lg:gap-14 items-center">
-        <div className="reveal-up relative">
-          <div className="absolute -top-5 -left-5 hidden md:block h-24 w-24 rounded-full border border-emani-cream/50 bg-white/70"></div>
-          <div className="hover-lift relative overflow-hidden rounded-[32px] border border-emani-cream/60 bg-white p-3 shadow-[0_24px_60px_rgba(32,31,22,0.08)]">
-            <img
-              src="https://images.unsplash.com/photo-1556910103-1c02745a30bf?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80"
-              alt="Производство Эмани"
-              className="h-[520px] w-full rounded-[24px] object-cover"
-            />
-          </div>
+    <section className="about-section about-section-partners" aria-labelledby="about-partners-network-title">
+      <div className="about-partners-showcase">
+        <div className="about-section-head about-partners-showcase-head">
+          <p className="about-label">{ABOUT_PARTNERS_SECTION_LABEL}</p>
+          <h2 id="about-partners-network-title" className="about-section-title">{ABOUT_PARTNERS_SECTION_TITLE}</h2>
         </div>
 
-        <div className="reveal-up reveal-delay-1 space-y-8">
-          <div>
-            <span className="text-[11px] font-bold uppercase tracking-[0.28em] text-emani-gold">Производство и локация</span>
-            <h2 className="mt-4 text-4xl font-serif text-emani-dark leading-tight">Надёжная производственная база с понятными стандартами качества.</h2>
-            <p className="mt-5 max-w-2xl text-base leading-relaxed text-gray-600">
-              Наше производство находится в Новой Москве, в ЖК «Дубровка». Площадь площадки — 500 м², а все процессы выстроены в соответствии со стандартами HACCP: это про безопасность, контроль и стабильный результат от партии к партии.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {[
-              'Профессиональное производство премиальной выпечки и кулинарии.',
-              'Контроль процессов на каждом этапе — от рецептуры до отгрузки.',
-              'Ответственность за стабильность вкуса, внешнего вида и сроков поставки.',
-              'Кафе при производстве с полным ассортиментом и свежей выкладкой каждый день.',
-            ].map((point) => (
-              <div key={point} className="rounded-3xl border border-emani-cream/50 bg-white p-5 shadow-sm">
-                <div className="flex items-start gap-3">
-                  <div className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-emani-gold"></div>
-                  <p className="text-sm leading-relaxed text-gray-600">{point}</p>
-                </div>
+        <div className="about-partners-logo-grid" role="list" aria-label="Партнёрские сети">
+          {ABOUT_PARTNERS.map(({ name, logo, logoAlt, summary, logoClassName }) => (
+            <article key={name} className="about-partner-card" role="listitem">
+              <div className="about-partner-logo-wrap">
+                <img
+                  src={logo}
+                  alt={logoAlt}
+                  loading="lazy"
+                  decoding="async"
+                  className={`about-partner-logo${logoClassName ? ` ${logoClassName}` : ''}`}
+                />
               </div>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-[1.2fr_0.8fr] gap-4">
-            <div className="hover-lift rounded-[28px] border border-emani-cream/50 bg-white p-7 shadow-sm">
-              <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-emani-gold">Кафе при производстве</p>
-              <h3 className="mt-4 text-2xl font-serif text-emani-dark">Можно зайти за любимой выпечкой, попробовать новинки и забрать всё свежее сразу.</h3>
-              <p className="mt-4 text-sm leading-relaxed text-gray-600">
-                Прямо на территории производства работает кафе с полным ассортиментом. Это делает знакомство с брендом более живым и удобным: гости получают свежий продукт, а команда видит мгновенную реакцию на новые позиции.
-              </p>
-            </div>
-
-            <div className="hover-lift rounded-[28px] border border-emani-cream/50 bg-emani-dark p-7 text-white shadow-[0_20px_45px_rgba(32,31,22,0.16)]">
-              <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-emani-lightGold">Партнёрства</p>
-              <div className="mt-5 space-y-4 text-sm leading-relaxed text-white/80">
-                <p>Официальный поставщик сети «ВкусВилл».</p>
-                <p>Официальный поставщик сети «Добрынинский».</p>
-                <p>Опыт работы на сильных московских рынках и в требовательной рознице.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="reveal-up">
-        <div className="max-w-3xl mx-auto text-center">
-          <span className="text-[11px] font-bold uppercase tracking-[0.28em] text-emani-gold">Направления</span>
-          <h2 className="mt-4 text-4xl font-serif text-emani-dark">Ассортимент, собранный под разные сценарии спроса.</h2>
-          <p className="mt-5 text-base leading-relaxed text-gray-600">
-            От витринных десертов до повседневной кулинарии и полуфабрикатов — каждое направление усиливает бренд и делает линейку устойчивой для разных форматов продаж.
-          </p>
-        </div>
-
-        <div className="mt-12 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-5">
-          {ABOUT_DIRECTIONS.map((item, idx) => (
-            <article
-              key={item.id}
-              className={`hover-lift rounded-[28px] border border-emani-cream/50 bg-white p-6 shadow-sm ${idx > 1 ? 'reveal-delay-1' : ''}`}
-            >
-              <div className="text-emani-lightGold text-xs font-bold tracking-[0.32em]">{item.id}</div>
-              <h3 className="mt-5 text-xl font-serif leading-snug text-emani-dark">{item.title}</h3>
-              <p className="mt-4 text-sm leading-relaxed text-gray-600">{item.description}</p>
+              <h3 className="about-card-title about-partner-card-title">{name}</h3>
+              <p className="about-body">{summary}</p>
             </article>
           ))}
         </div>
-      </section>
+      </div>
+    </section>
 
-      <section className="grid grid-cols-1 xl:grid-cols-[1.15fr_0.85fr] gap-6">
-        <div className="hover-lift reveal-up rounded-[32px] border border-emani-cream/50 bg-white px-7 py-8 md:px-10 md:py-10 shadow-[0_18px_45px_rgba(32,31,22,0.05)]">
-          <span className="text-[11px] font-bold uppercase tracking-[0.28em] text-emani-gold">Производство под СТМ</span>
-          <h2 className="mt-4 text-3xl font-serif text-emani-dark">Готовы работать как производственный партнёр для брендов и сетей.</h2>
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
-              <h3 className="font-bold text-lg mb-4 text-emani-gold uppercase tracking-widest">Что мы предлагаем</h3>
-              <ul className="space-y-3 text-gray-600 text-sm">
-                <li className="flex items-start gap-2"><Check size={16} className="mt-1 text-emani-gold" /> Разработка рецептур под требования клиента.</li>
-                <li className="flex items-start gap-2"><Check size={16} className="mt-1 text-emani-gold" /> Производство под собственную упаковку и брендинг.</li>
-                <li className="flex items-start gap-2"><Check size={16} className="mt-1 text-emani-gold" /> Гибкость в ассортименте и объёмах.</li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-bold text-lg mb-4 text-emani-gold uppercase tracking-widest">Преимущества</h3>
-              <ul className="space-y-3 text-gray-600 text-sm">
-                <li className="flex items-start gap-2"><Check size={16} className="mt-1 text-emani-gold" /> Контроль качества на каждом этапе.</li>
-                <li className="flex items-start gap-2"><Check size={16} className="mt-1 text-emani-gold" /> Стабильные сроки доставки.</li>
-                <li className="flex items-start gap-2"><Check size={16} className="mt-1 text-emani-gold" /> Конкурентные цены при высоком качестве.</li>
-              </ul>
-            </div>
+    <div className="about-diagonal-divider about-diagonal-divider-reverse" aria-hidden="true" />
+
+    <section className="about-section about-section-directions" aria-labelledby="about-directions-title">
+      <div className="about-shell">
+        <div className="about-section-head text-center">
+          <h2
+            id="about-directions-title"
+            className="about-section-title mx-auto max-w-full text-center leading-none tracking-tight text-[clamp(1.8rem,4.8vw,4rem)] whitespace-normal sm:whitespace-nowrap"
+          >
+            {ABOUT_DIRECTIONS_HEADING}
+          </h2>
+        </div>
+
+        <div className="about-directions-grid">
+          {ABOUT_DIRECTIONS.map(({ title, line, imageBase }) => (
+            <article key={title} className="about-direction-card">
+              <div className="about-direction-media">
+                <img src={imageBase} alt="" loading="lazy" decoding="async" />
+              </div>
+              <p className="about-body">
+                <strong className="about-inline-emphasis">{title}</strong> — {line}
+              </p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section className="about-section about-section-warm about-section-first" aria-labelledby="about-production-title">
+      <div className="about-shell about-feature-layout">
+        <div className="about-feature-copy">
+          <p className="about-label about-label-offset">{ABOUT_RETAIL_TITLE}</p>
+          <h2 id="about-production-title" className="about-section-title">{ABOUT_RETAIL_TEXT}</h2>
+        </div>
+
+        <div className="about-feature-media-wrap">
+          <div className="about-retail-collage" aria-label="Фотографии собственного магазина и кафе «Эмани»">
+            {ABOUT_RETAIL_GALLERY.map(({ src, alt, className, sizes }) => (
+              <figure key={src} className={`about-retail-card ${className}`}>
+                <img
+                  src={src}
+                  alt={alt}
+                  loading="lazy"
+                  decoding="async"
+                  sizes={sizes}
+                />
+              </figure>
+            ))}
           </div>
         </div>
-
-        <div className="hover-lift reveal-up reveal-delay-1 rounded-[32px] border border-emani-cream/50 bg-[#fcfaf7] px-7 py-8 md:px-10 md:py-10 shadow-[0_18px_45px_rgba(32,31,22,0.05)]">
-          <span className="text-[11px] font-bold uppercase tracking-[0.28em] text-emani-gold">«Эмани» в Дубае</span>
-          <h2 className="mt-4 text-3xl font-serif text-emani-dark">Международное развитие подтверждает силу продукта.</h2>
-          <p className="mt-5 text-sm leading-relaxed text-gray-600">
-            В начале 2024 года мы открыли свою первую международную точку в Дубае. Это премиальная кондитерская, которая представляет фирменные десерты и кулинарную продукцию бренда.
-          </p>
-          <p className="mt-4 text-sm leading-relaxed text-gray-600">
-            Выход на рынок ОАЭ показывает, что продукты «Эмани» остаются востребованными и конкурентоспособными не только локально, но и на международном уровне.
-          </p>
-        </div>
-      </section>
-    </div>
+      </div>
+    </section>
   </div>
 );
 
+type ContactChannel = {
+  icon: LucideIcon;
+  label: string;
+  value: string;
+  hint: string;
+  href?: string;
+};
+
+const CONTACT_CHANNELS: ContactChannel[] = [
+  {
+    icon: Phone,
+    label: 'Телефон',
+    value: '+7 967 105-11-11',
+    hint: 'Звонки и WhatsApp',
+    href: 'tel:+79671051111',
+  },
+  {
+    icon: Mail,
+    label: 'E-mail',
+    value: 'garifullina@emanis.ru',
+    hint: 'Для заказов и сотрудничества',
+    href: 'mailto:garifullina@emanis.ru',
+  },
+  {
+    icon: MessageCircle,
+    label: 'Telegram',
+    value: '@emaniicafe',
+    hint: 'Официальный телеграм-канал',
+    href: 'https://t.me/emaniicafe',
+  },
+];
+
+const CONTACT_SIDE_PHOTOS_LEFT = [
+  {
+    src: contactPhoto1,
+    alt: 'Витрина с фирменными десертами «Эмани».',
+    sizes: '(min-width: 1024px) 22vw, 46vw',
+  },
+  {
+    src: contactPhoto2,
+    alt: 'Подача десерта в кафе «Эмани».',
+    sizes: '(min-width: 1024px) 22vw, 46vw',
+  },
+] as const;
+
+const CONTACT_SIDE_PHOTOS_RIGHT = [
+  {
+    src: contactPhoto4,
+    alt: 'Интерьер кафе и зоны посадки «Эмани».',
+    sizes: '(min-width: 1024px) 22vw, 46vw',
+  },
+  {
+    src: contactPhoto5,
+    alt: 'Фирменная сервировка в кафе «Эмани».',
+    sizes: '(min-width: 1024px) 22vw, 46vw',
+  },
+] as const;
+
 const ContactPage = () => (
-  <div className="bg-[#fcfaf7] min-h-screen py-20 px-4">
-    <div className="max-w-7xl mx-auto">
-      <div className="text-center mb-16">
-        <h1 className="text-4xl md:text-5xl font-serif text-emani-dark mb-6">Контакты</h1>
+  <div className="bg-[#fcfaf7] px-4 pt-6 pb-4 sm:px-6 sm:pt-7 sm:pb-5 lg:px-8 lg:pt-8 lg:pb-6">
+    <div className="mx-auto w-full max-w-[90rem]">
+      <div className="text-center">
+        <h1 className="font-serif text-3xl text-emani-dark sm:text-4xl md:text-5xl">Контакты</h1>
+        <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-gray-500 sm:text-base">
+          Свяжитесь с нами удобным способом — мы на связи каждый день.
+        </p>
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
-        <div className="bg-white p-12 rounded-3xl shadow-xl border border-emani-cream">
-           <h3 className="text-3xl font-serif mb-10 text-emani-dark border-b border-emani-cream pb-6">Наши контакты</h3>
-           <ul className="space-y-10">
-             <li className="flex items-start gap-6">
-               <Phone className="text-emani-gold shrink-0" size={28} />
-               <div>
-                 <p className="text-gray-900 text-xl font-medium mb-1">+7 967 105-11-11</p>
-                 <p className="text-gray-400 text-sm">WhatsApp, Telegram</p>
-               </div>
-             </li>
-             <li className="flex items-start gap-6">
-               <Mail className="text-emani-gold shrink-0" size={28} />
-               <p className="text-gray-900 text-xl font-medium">emanidubrovka@gmail.com</p>
-             </li>
-              <li className="flex items-start gap-6">
-               <Instagram className="text-emani-gold shrink-0" size={28} />
-               <a href="https://instagram.com/emani_house" target="_blank" rel="noopener noreferrer" className="text-gray-900 text-xl font-medium hover:text-emani-gold transition-colors">emani_house</a>
-             </li>
-             <li className="flex items-start gap-6">
-               <MapPin className="text-emani-gold shrink-0" size={28} />
-               <span className="text-gray-500 text-lg leading-relaxed">Коммунарка, ул. Ясеневая, 5к1</span>
-             </li>
-           </ul>
-        </div>
-        <div className="bg-white p-12 rounded-3xl border border-emani-cream shadow-xl">
-          <h3 className="text-3xl font-serif mb-10 text-emani-dark">Напишите нам</h3>
-          <form className="space-y-8">
-            <input type="text" className="w-full px-6 py-4 rounded-xl border border-gray-100 bg-[#fcfaf7] focus:border-emani-gold outline-none" placeholder="Имя" />
-            <textarea rows={6} className="w-full px-6 py-4 rounded-xl border border-gray-100 bg-[#fcfaf7] focus:border-emani-gold outline-none resize-none" placeholder="Сообщение"></textarea>
-            <button type="button" className="w-full bg-emani-dark text-white py-6 rounded-xl hover:bg-emani-gold transition-all font-bold uppercase tracking-widest text-xs">
-              Отправить сообщение
-            </button>
-          </form>
-        </div>
+
+      <div className="mt-5 grid gap-3 sm:gap-4 lg:grid-cols-[minmax(0,0.94fr)_minmax(0,1.12fr)_minmax(0,0.94fr)] lg:items-stretch">
+          <section className="order-2 rounded-[1.6rem] border border-emani-cream/65 bg-white p-2.5 shadow-[0_12px_36px_rgba(98,72,39,0.1)] sm:p-3 lg:order-1 lg:h-[31rem] xl:h-[33rem]">
+            <div className="grid h-full grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-1 lg:grid-rows-2">
+              {CONTACT_SIDE_PHOTOS_LEFT.map(({ src, alt, sizes }) => (
+                <figure key={src} className="relative h-32 overflow-hidden rounded-[1.2rem] border border-emani-cream/50 bg-[#f7f1e4] sm:h-36 lg:h-full">
+                  <img
+                    src={src}
+                    alt={alt}
+                    loading="lazy"
+                    decoding="async"
+                    sizes={sizes}
+                    className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+                  />
+                </figure>
+              ))}
+            </div>
+          </section>
+
+          <section className="order-1 rounded-[1.6rem] border border-emani-cream/65 bg-white px-4 py-5 shadow-[0_12px_36px_rgba(98,72,39,0.1)] sm:px-5 sm:py-6 lg:order-2 lg:flex lg:h-[31rem] lg:flex-col lg:px-5 lg:py-5 xl:h-[33rem]">
+            <ul className="mt-1 grid grid-cols-1 gap-3 lg:min-h-0 lg:flex-1 lg:content-start">
+              {CONTACT_CHANNELS.map(({ icon: Icon, label, value, hint, href }) => (
+                <li key={label} className="min-w-0 rounded-xl border border-emani-cream/60 bg-[#fcfaf7] px-3 py-2.5 sm:px-3.5">
+                  <div className="flex items-start gap-2.5">
+                    <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-emani-cream/70 bg-white text-emani-gold">
+                      <Icon size={18} />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400">{label}</p>
+                      {href ? (
+                        <a
+                          href={href}
+                          target={href.startsWith('http') ? '_blank' : undefined}
+                          rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                          className="mt-0.5 block max-w-full whitespace-normal break-words text-base font-semibold leading-snug text-emani-dark transition-colors [overflow-wrap:anywhere] sm:text-lg hover:text-emani-gold"
+                        >
+                          {value}
+                        </a>
+                      ) : (
+                        <p className="mt-0.5 max-w-full whitespace-normal break-words text-base font-semibold leading-snug text-emani-dark [overflow-wrap:anywhere] sm:text-lg">{value}</p>
+                      )}
+                      {label === 'Телефон' ? <p className="mt-0.5 max-w-full whitespace-normal break-words text-sm leading-relaxed text-gray-500 [overflow-wrap:anywhere]">{hint}</p> : null}
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <section className="order-3 rounded-[1.6rem] border border-emani-cream/65 bg-white p-2.5 shadow-[0_12px_36px_rgba(98,72,39,0.1)] sm:p-3 lg:h-[31rem] xl:h-[33rem]">
+            <div className="grid h-full grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-1 lg:grid-rows-2">
+              {CONTACT_SIDE_PHOTOS_RIGHT.map(({ src, alt, sizes }) => (
+                <figure key={src} className="relative h-32 overflow-hidden rounded-[1.2rem] border border-emani-cream/50 bg-[#f7f1e4] sm:h-36 lg:h-full">
+                  <img
+                    src={src}
+                    alt={alt}
+                    loading="lazy"
+                    decoding="async"
+                    sizes={sizes}
+                    className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+                  />
+                </figure>
+              ))}
+            </div>
+          </section>
       </div>
     </div>
   </div>
@@ -525,70 +765,121 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
   const { addToCart } = useContext(CartContext);
   return (
     <div className="bg-white rounded-2xl shadow-sm hover:shadow-2xl transition-all duration-500 overflow-hidden group flex flex-col h-full border border-emani-cream/30">
-      <div className="h-72 overflow-hidden relative">
-        <img src={product.image} alt={product.name} className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-1000" />
+      <div className="h-64 sm:h-72 overflow-hidden relative">
+        <img
+          src={product.image}
+          alt={product.name}
+          loading="lazy"
+          decoding="async"
+          sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 100vw"
+          className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-1000"
+          style={product.imagePosition ? { objectPosition: product.imagePosition } : undefined}
+        />
         <button 
            onClick={() => addToCart(product)}
-           className="absolute bottom-6 left-6 right-6 bg-white text-emani-dark py-3 rounded-xl shadow-2xl opacity-0 group-hover:opacity-100 transition-all font-bold text-xs uppercase tracking-widest"
+           className="absolute bottom-4 sm:bottom-6 left-4 sm:left-6 right-4 sm:right-6 min-h-[44px] bg-white text-emani-dark py-3 rounded-xl shadow-2xl opacity-100 md:opacity-0 md:group-hover:opacity-100 group-focus-within:opacity-100 transition-all font-bold text-xs uppercase tracking-widest"
         >
           В корзину
         </button>
       </div>
-      <div className="p-8 flex flex-col flex-grow">
-        <div className="flex justify-between items-start mb-4">
-           <h3 className="font-serif text-xl text-emani-dark leading-tight">{product.name}</h3>
-           <span className="font-bold text-lg text-emani-gold">{product.price} ₽</span>
+      <div className="p-6 sm:p-8 flex flex-col flex-grow">
+        <div className="flex justify-between items-start gap-3 mb-4">
+           <h3 className="min-w-0 flex-1 font-serif text-xl text-emani-dark leading-tight">{product.name}</h3>
+           <span className="shrink-0 whitespace-nowrap text-right font-bold text-lg text-emani-gold">{product.price} ₽</span>
         </div>
-        <p className="text-gray-500 text-sm mb-6 line-clamp-3 leading-relaxed flex-grow italic">"{product.description}"</p>
+        {product.description.trim() ? (
+          <p className="text-gray-500 text-sm mb-6 line-clamp-3 leading-relaxed flex-grow italic">"{product.description}"</p>
+        ) : null}
       </div>
     </div>
   );
 };
 
 const CartSidebar = () => {
-  const { isCartOpen, toggleCart, items, removeFromCart, updateQuantity, total } = useContext(CartContext);
+  const { isCartOpen, toggleCart, items, updateQuantity, total } = useContext(CartContext);
   if (!isCartOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
       <div className="absolute inset-0 bg-emani-dark/40 backdrop-blur-sm" onClick={toggleCart}></div>
       <div className="absolute inset-y-0 right-0 max-w-md w-full bg-white shadow-2xl flex flex-col transform transition-transform animate-[slideIn_0.3s_ease-out]">
-        <div className="p-8 border-b border-emani-cream/30 flex justify-between items-center bg-[#fcfaf7]">
-          <h2 className="font-serif text-3xl text-emani-dark">Корзина</h2>
-          <button onClick={toggleCart} className="p-2 hover:bg-emani-cream rounded-full transition-colors">
+        <div className="p-5 sm:p-8 border-b border-emani-cream/30 flex justify-between items-center bg-[#fcfaf7]">
+          <h2 className="font-serif text-2xl sm:text-3xl text-emani-dark">Корзина</h2>
+          <button onClick={toggleCart} className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full hover:bg-emani-cream transition-colors">
             <X size={24} />
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto p-8 space-y-8">
+        <div className="flex-1 overflow-y-auto p-5 sm:p-8 space-y-8">
           {items.length === 0 ? (
-            <div className="text-center p-8">Корзина пуста</div>
+            <div className="text-center p-8">
+              <p className="font-serif text-2xl text-emani-dark">Пока пусто</p>
+            </div>
           ) : (
             items.map(item => (
-              <div key={item.id} className="flex gap-6 pb-8 border-b border-emani-cream/20">
-                <img src={item.image} className="w-24 h-24 rounded-xl object-cover" alt={item.name} />
+              <div key={item.id} className="flex gap-4 sm:gap-6 pb-8 border-b border-emani-cream/20">
+                <img src={item.image} className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover" alt={item.name} loading="lazy" decoding="async" />
                 <div className="flex-1">
-                  <h4 className="font-serif text-lg">{item.name}</h4>
-                  <div className="flex justify-between mt-4">
+                  <h4 className="font-serif text-base sm:text-lg leading-snug">{item.name}</h4>
+                  <div className="flex justify-between items-center mt-4 gap-4">
                     <span className="font-bold text-emani-gold">{item.price * item.quantity} ₽</span>
                     <div className="flex items-center gap-2">
-                      <button onClick={() => updateQuantity(item.id, -1)}>-</button>
-                      <span>{item.quantity}</span>
-                      <button onClick={() => updateQuantity(item.id, 1)}>+</button>
+                      <button
+                        onClick={() => updateQuantity(item.id, -1)}
+                        className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-emani-cream text-lg leading-none text-emani-dark hover:bg-emani-cream/30 transition-colors"
+                        aria-label={`Уменьшить количество ${item.name}`}
+                      >
+                        -
+                      </button>
+                      <span className="min-w-5 text-center">{item.quantity}</span>
+                      <button
+                        onClick={() => updateQuantity(item.id, 1)}
+                        className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-emani-cream text-lg leading-none text-emani-dark hover:bg-emani-cream/30 transition-colors"
+                        aria-label={`Увеличить количество ${item.name}`}
+                      >
+                        +
+                      </button>
                     </div>
                   </div>
                 </div>
               </div>
             ))
           )}
-        </div>
-        <div className="p-8 border-t border-emani-cream/30 bg-[#fcfaf7]">
-          <div className="flex justify-between mb-8">
-            <span className="uppercase tracking-widest text-[10px] font-bold">Итого</span>
-            <span className="text-4xl font-serif font-bold">{total} ₽</span>
+          <div className="rounded-3xl border border-emani-cream/40 bg-[#fcfaf7] p-5 sm:p-6 shadow-sm">
+            <p className="font-serif text-xl sm:text-2xl text-emani-dark">Оформить доставку</p>
+            <p className="mt-3 text-sm leading-relaxed text-emani-dark/75">
+              Выберите удобный сервис, проверьте состав заказа и завершите оформление в приложении.
+            </p>
+            {items.length > 0 ? (
+              <div className="mt-4 flex items-center justify-between rounded-2xl border border-emani-cream/50 bg-white px-4 py-3">
+                <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-emani-dark/70">Сумма в корзине</span>
+                <span className="font-serif text-xl text-emani-dark">{total} ₽</span>
+              </div>
+            ) : null}
+            <div className="mt-5 grid grid-cols-1 gap-3">
+              <a
+                href="https://eda.yandex.ru/restaurant/emani?utm_campaign=superapp_taxi_web&utm_medium=referral&utm_source=rst_shared_link"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex min-h-[50px] w-full items-center justify-center gap-2.5 rounded-full border border-emani-cream bg-white px-4 py-2.5 text-sm font-semibold tracking-[0.04em] text-emani-dark shadow-sm transition-all hover:-translate-y-0.5 hover:border-emani-gold/30 hover:shadow-md"
+                aria-label="Заказать в Яндекс Еде"
+              >
+                <img src={yandexEdaLogo} alt="Яндекс Еда" className="h-6 w-6 shrink-0 object-contain" />
+                <span className="whitespace-nowrap">Яндекс Еда</span>
+                <ArrowUpRight className="h-4 w-4 text-emani-gold transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+              </a>
+              <a
+                href="https://dc.eda.yandex.net/restaurant/emani"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex min-h-[50px] w-full items-center justify-center gap-2.5 rounded-full border border-emani-cream bg-white px-4 py-2.5 text-sm font-semibold tracking-[0.04em] text-emani-dark shadow-sm transition-all hover:-translate-y-0.5 hover:border-emani-gold/30 hover:shadow-md"
+                aria-label="Заказать в Деливери Клаб"
+              >
+                <img src={deliveryLogo} alt="Деливери Клаб" className="h-6 w-6 shrink-0 object-contain" />
+                <span className="whitespace-nowrap">Деливери Клаб</span>
+                <ArrowUpRight className="h-4 w-4 text-emani-gold transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+              </a>
+            </div>
           </div>
-          <button disabled={items.length === 0} className="w-full bg-emani-dark text-white py-5 rounded-2xl uppercase text-xs font-bold tracking-widest">
-            Оформить доставку
-          </button>
         </div>
       </div>
     </div>
@@ -628,8 +919,8 @@ export default function App() {
 
   return (
     <CartContext.Provider value={{ items, addToCart, removeFromCart, updateQuantity, clearCart, total, isCartOpen, toggleCart: () => setIsCartOpen(!isCartOpen) }}>
-      <HashRouter>
-        <div className="flex flex-col min-h-screen">
+      <BrowserRouter>
+        <div id="app-shell" className="app-shell flex flex-col min-h-screen">
           <Navbar />
           <main className="flex-grow">
             <Routes>
@@ -643,7 +934,7 @@ export default function App() {
           <Footer />
           <CartSidebar />
         </div>
-      </HashRouter>
+      </BrowserRouter>
     </CartContext.Provider>
   );
 }
